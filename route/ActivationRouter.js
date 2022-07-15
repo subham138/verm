@@ -3,6 +3,7 @@ const { F_Insert, F_Select, F_Check, F_Delete, CreateActivity } = require('../mo
 const dateFormat = require('dateformat');
 const ActivationRouter = express.Router();
 
+// Active and deactive team in roster
 ActivationRouter.get('/get_active_emp_list', async (req, res) => {
 	var flag = req.query.flag,
 		frm_dt = dateFormat(new Date(), "yyyy-mm-dd"),
@@ -26,6 +27,7 @@ ActivationRouter.get('/get_active_emp_list', async (req, res) => {
 	res.send(res_dt);
 })
 
+// Active team and de-active all previous team that are assigned before
 ActivationRouter.post('/activation', async (req, res) => {
 	var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
 	var data = req.body;
@@ -38,6 +40,7 @@ ActivationRouter.post('/activation', async (req, res) => {
 		update_flag = 1;
 	var update_rs = await F_Insert(update_table, update_fields, null, update_whr, 1);
 	//////////////////////////////////////////////////////
+	// Insert team id against a incident
 	var table_name = 'td_activation',
 		//fields = data.id > 0 ? `inc_id = "${data.inc_id}", team_id = "${data.team_id}", active_flag = "${data.flag}", modified_by = "${data.user}", modified_at = "${datetime}"` :
 		// '(inc_id, team_id, active_flag, created_by, created_at)',
@@ -46,7 +49,8 @@ ActivationRouter.post('/activation', async (req, res) => {
 		whr = null,
 		flag = 0,
 		flag_type = flag > 0 ? 'Deactivated' : 'Assigned';
-
+	
+	// Store activity
 	var user_id = data.user,
 		act_type = flag > 0 ? 'M' : 'C',
 		activity = `A Team ${data.team_name} is ${flag_type} for the incident named ${data.inc_name} BY ${data.user} AT ${datetime}`;
@@ -57,6 +61,7 @@ ActivationRouter.post('/activation', async (req, res) => {
 	res.send(res_dt)
 })
 
+// Return active flag for a specific team
 ActivationRouter.get('/get_active_status', async (req, res) => {
 	var frm_dt = req.query.frm_dt,
 		to_dt = req.query.to_dt,

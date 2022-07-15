@@ -3,6 +3,7 @@ const { F_Select } = require('../modules/MasterModule');
 const dateFormat = require('dateformat');
 const ReportRouter = express.Router();
 
+/////////////////////////////// ALL OPEN/CLOSE INCIDENT DETAILS ///////////////////////////////////////
 ReportRouter.get('/get_all_incident', async (req, res) => {
     var table_name = 'td_incident',
         select = 'id, inc_no, inc_name',
@@ -12,6 +13,7 @@ ReportRouter.get('/get_all_incident', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// INCIDENT REPORT VIEW ///////////////////////////////////////
 ReportRouter.get('/incident_report', async (req, res) => {
     var frm_dt = req.query.frm_dt,
         to_dt = req.query.to_dt,
@@ -24,6 +26,7 @@ ReportRouter.get('/incident_report', async (req, res) => {
     //`SELECT ${select} FROM ${table_name} ${whr}`
 })
 
+/////////////////////////////// FETCH ALL TYPES OF BOARD DATA ///////////////////////////////////////
 ReportRouter.get('/board_report', async (req, res) => {
     var inc_id = req.query.inc_id,
         board_id = req.query.board_id;
@@ -112,6 +115,7 @@ ReportRouter.get('/board_report', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// ACTIVATION MODULE REPORT ///////////////////////////////////////
 ReportRouter.get('/activation_report', async (req, res) => {
     var frm_dt = req.query.frm_dt,
         to_dt = req.query.to_dt,
@@ -123,6 +127,7 @@ ReportRouter.get('/activation_report', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// CHAT MODULE REPORT ///////////////////////////////////////
 ReportRouter.get('/chat_report', async (req, res) => {
     var inc_id = req.query.inc_id,
 		frm_dt = req.query.frm_dt,
@@ -135,6 +140,7 @@ ReportRouter.get('/chat_report', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// AUTO LOG REPORT ///////////////////////////////////////
 ReportRouter.get('/autolog_report', async (req, res) => {
     var inc_id = req.query.inc_id,
         frm_dt = req.query.frm_dt,
@@ -146,6 +152,7 @@ ReportRouter.get('/autolog_report', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// MANUAL LOG REPORT ///////////////////////////////////////
 ReportRouter.get('/manuallog_report', async (req, res) => {
     var inc_id = req.query.inc_id,
         frm_dt = req.query.frm_dt,
@@ -157,6 +164,7 @@ ReportRouter.get('/manuallog_report', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// CALL LOG REPORT ///////////////////////////////////////
 ReportRouter.get('/call_log_report', async (req, res) => {
     var inc_id = req.query.inc_id,
         frm_dt = req.query.frm_dt,

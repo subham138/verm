@@ -4,6 +4,7 @@ const { AssignTeamMail } = require('../modules/EmailModule');
 const dateFormat = require('dateformat');
 const TeamRouter = express.Router();
 
+/////////////////////////////// FETCH ALL EMPLOYEE LIST ///////////////////////////////////////
 TeamRouter.get('/get_emp_list', async (req, res) => {
     var table_name = 'md_employee a',
         select = `a.id as emp_id, a.employee_id, a.emp_name, a.user_type, a.user_status, IF((SELECT COUNT(id) FROM td_team_members b WHERE a.id=b.emp_id AND b.emp_status = 'O') > 0, 'Assigned', 'Not Assigned') as assign_status`,
@@ -12,6 +13,7 @@ TeamRouter.get('/get_emp_list', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// FETCH ASSIGNED TEAMS ///////////////////////////////////////
 TeamRouter.get('/assign_team_dash', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_team_members a, md_teams b',
@@ -22,6 +24,7 @@ TeamRouter.get('/assign_team_dash', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// FETCH ALL MEMBER LIST AGAINST A TEAM ///////////////////////////////////////
 TeamRouter.get('/assign_team', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_team_members a, md_teams b, md_employee c',
@@ -31,6 +34,7 @@ TeamRouter.get('/assign_team', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// ASIGN EMPLOYEES TO A TEAM ///////////////////////////////////////
 TeamRouter.post('/assign_team', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         date = dateFormat(new Date(), "yyyy-mm-dd"),
@@ -86,6 +90,7 @@ TeamRouter.post('/assign_team', async (req, res) => {
     res.send(res_dt);
 })
 
+/////////////////////////////// TEAM STATUS DASHBOARD ///////////////////////////////////////
 TeamRouter.get('/team_status_dash', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_team_log a, md_teams b',
@@ -96,6 +101,7 @@ TeamRouter.get('/team_status_dash', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// FETCH TEAM STATUS ///////////////////////////////////////
 TeamRouter.get('/team_status', async (req, res) => {
     var now = dateFormat(new Date(), "yyyy-mm-dd");
     var id = req.query.id,
@@ -107,6 +113,7 @@ TeamRouter.get('/team_status', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// CHECK ACTIVE DATE AND CREATE A ROSTER FOR A TEAM ///////////////////////////////////////
 TeamRouter.post('/team_status', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         res_dt = { suc: 1, msg: "Success" };
@@ -136,6 +143,7 @@ TeamRouter.post('/team_status', async (req, res) => {
     res.send(res_dt);
 })
 
+/////////////////////////////// PREVIOUS TEAM ROSTER ///////////////////////////////////////
 TeamRouter.get('/pre_team_status', async (req, res) => {
 	var now = dateFormat(new Date(), "yyyy-mm-dd");
     var id = req.query.id,
@@ -147,6 +155,7 @@ TeamRouter.get('/pre_team_status', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// DELETE TEAM STATUS ///////////////////////////////////////
 TeamRouter.get('/del_team_status', async (req, res) => {
     var team_id = req.query.team_id,
         del_table_name = 'td_team_log',
@@ -155,6 +164,7 @@ TeamRouter.get('/del_team_status', async (req, res) => {
     res.send(del);
 })
 
+/////////////////////////////// FETCH ASSIGNED DATE FORM & TO ///////////////////////////////////////
 TeamRouter.get('/get_max_frm_dt', async (req, res) => {
     var team_id = req.query.team_id,
         table_name = 'td_team_log',

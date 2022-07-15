@@ -4,6 +4,7 @@ const dateFormat = require('dateformat');
 const bcrypt = require('bcrypt');
 const LoginRouter = express.Router();
 
+/////////////////////////////// ADMIN LOGIN ///////////////////////////////////////
 LoginRouter.post('/admin_login', async (req, res) => {
     var res_dt = '';
     var data = req.body,
@@ -15,7 +16,7 @@ LoginRouter.post('/admin_login', async (req, res) => {
         var db_pass = dt.msg[0].password;
         if (await bcrypt.compare(data.password, db_pass)) {
             var status = 'Login';
-			var userUpdate = await UpdateUserStatus(dt.msg[0].employee_id, data.email, 'L');
+            var userUpdate = await UpdateUserStatus(dt.msg[0].employee_id, data.email, 'L');
             if (await UpdateUserLog(data.email, status)) {
                 res_dt = { suc: 1, msg: dt.msg };
             } else {
@@ -31,6 +32,7 @@ LoginRouter.post('/admin_login', async (req, res) => {
     res.send(res_dt)
 })
 
+/////////////////////////////// USER LOGIN ///////////////////////////////////////
 LoginRouter.post('/login', async (req, res) => {
     var res_dt = '';
     var data = req.body,
@@ -42,7 +44,7 @@ LoginRouter.post('/login', async (req, res) => {
         var db_pass = dt.msg[0].password;
         if (await bcrypt.compare(data.password, db_pass)) {
             var status = 'Login';
-			var userUpdate = await UpdateUserStatus(dt.msg[0].employee_id, data.email, 'L');
+            var userUpdate = await UpdateUserStatus(dt.msg[0].employee_id, data.email, 'L');
             if (await UpdateUserLog(data.email, status)) {
                 var ac_table_name = 'td_team_members a LEFT JOIN td_activation b ON a.team_id=b.team_id',
                     ac_select = 'COUNT(a.id) as active_flag',
@@ -62,17 +64,19 @@ LoginRouter.post('/login', async (req, res) => {
     res.send(res_dt)
 })
 
+/////////////////////////////// LOGOUT ///////////////////////////////////////
 LoginRouter.post('/log_out', async (req, res) => {
-	var data = req.body,
-		id = data.id,
-		user = data.user,
-		status = 'O';
-	var dt = await UpdateUserStatus(id, user, status);
-	res.send(dt);
+    var data = req.body,
+        id = data.id,
+        user = data.user,
+        status = 'O';
+    var dt = await UpdateUserStatus(id, user, status);
+    res.send(dt);
 })
 
+/////////////////////////////// AFTER LOGIN/LOGOUT CHANGE USER STATUS ///////////////////////////////////////
 const UpdateUserStatus = async (id, user, status) => {
-	var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
+    var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var table_name = 'md_employee',
         fields = `user_status = "${status}", modified_by = "${user}", modified_at = "${datetime}"`,
         values = null,
@@ -84,6 +88,7 @@ const UpdateUserStatus = async (id, user, status) => {
     })
 }
 
+/////////////////////////////// STORE USER STATUS RECORDS ///////////////////////////////////////
 const UpdateUserLog = async (user_id, log_status) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var table_name = 'td_user_log',
@@ -97,30 +102,31 @@ const UpdateUserLog = async (user_id, log_status) => {
     })
 }
 
+/////////////////////////////// FIRST TIME LOGIN CHANGE PASSWORD ///////////////////////////////////////
 LoginRouter.post('/first_change_pass', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
-	var res_dt = '';
-	var data = req.body,
+    var res_dt = '';
+    var data = req.body,
         table_name = 'md_employee',
         select = 'id, employee_id, emp_name, password',
         whr = `employee_id = "${data.emp_id}" AND emp_status = "A"`;
     var dt = await F_Select(select, table_name, whr, null);
-	var db_pass = dt.msg[0].password;
-        if (await bcrypt.compare(data.old_pass, db_pass)) {
-			var pass = bcrypt.hashSync(data.pass, 10);
-			var fields = `password = "${pass}", first_login = 1, modified_by = "${data.user}", modified_at = "${datetime}"`,
-				values = null,
-				flag = 1;
-			var insert_dt = await F_Insert(table_name, fields, values, whr, flag);
-			if(insert_dt.suc == 1){
-				res_dt = {suc: 1, msg: "Password Has Changed Successfully!!"};
-			}else{
-				res_dt = insert_dt;
-			}
-		}else{
-			res_dt = {suc: 2, msg: "Please Enter Your Correct Old Password!!"};
-		}
-	res.send(res_dt);
+    var db_pass = dt.msg[0].password;
+    if (await bcrypt.compare(data.old_pass, db_pass)) {
+        var pass = bcrypt.hashSync(data.pass, 10);
+        var fields = `password = "${pass}", first_login = 1, modified_by = "${data.user}", modified_at = "${datetime}"`,
+            values = null,
+            flag = 1;
+        var insert_dt = await F_Insert(table_name, fields, values, whr, flag);
+        if (insert_dt.suc == 1) {
+            res_dt = { suc: 1, msg: "Password Has Changed Successfully!!" };
+        } else {
+            res_dt = insert_dt;
+        }
+    } else {
+        res_dt = { suc: 2, msg: "Please Enter Your Correct Old Password!!" };
+    }
+    res.send(res_dt);
 })
 
 module.exports = { LoginRouter };

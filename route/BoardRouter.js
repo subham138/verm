@@ -3,6 +3,7 @@ const { F_Insert, F_Select, CreateActivity, F_Delete } = require('../modules/Mas
 const dateFormat = require('dateformat');
 const BoardRouter = express.Router();
 
+/////////////////////////////// ACTIVE INCIDENT DETAILS ///////////////////////////////////////
 BoardRouter.get('/get_active_inc', async (req, res) => {
     var table_name = 'td_incident a, md_location b, md_tier c, md_incident_type d',
         select = 'a.id, a.inc_no, a.inc_name, b.offshore_name, b.offshore_latt as lat, b.offshore_long lon, c.tier_type, a.inc_dt, TIMESTAMPDIFF(HOUR,a.inc_dt, NOW()) as dif_time, d.incident_name incident_type, (SELECT COUNT(id) FROM td_casualty_board e WHERE a.id=e.inc_id) AS tot_casualty',
@@ -10,7 +11,9 @@ BoardRouter.get('/get_active_inc', async (req, res) => {
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// INCIDENT BOARD ///////////////////////////////////////
 BoardRouter.get('/inc_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_inc_board',
@@ -50,7 +53,9 @@ BoardRouter.post('/inc_board', async (req, res) => {
     }
     res.send(res_data)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// VESSEL BOARD ///////////////////////////////////////
 BoardRouter.get('/vessel_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_vessel_board',
@@ -88,7 +93,9 @@ BoardRouter.post('/vessel_board', async (req, res) => {
     }
     res.send(res_data)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// HELICOPTER BOARD ///////////////////////////////////////
 BoardRouter.get('/helicopter_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_helicopter_board',
@@ -126,7 +133,9 @@ BoardRouter.post('/helicopter_board', async (req, res) => {
     }
     res.send(res_data)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// CASULTY BOARD ///////////////////////////////////////
 BoardRouter.get('/casualty_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_casualty_board',
@@ -175,7 +184,9 @@ BoardRouter.post('/casualty_board', async (req, res) => {
     }
     res.send(res_data)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// EVACUATION BOARD ///////////////////////////////////////
 BoardRouter.get('/evacuation_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_evacuation_board',
@@ -212,7 +223,9 @@ BoardRouter.post('/evacuation_board', async (req, res) => {
     }
     res.send(res_data)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// EVENT BOARD ///////////////////////////////////////
 BoardRouter.get('/event_log_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_events_log_board',
@@ -249,6 +262,7 @@ BoardRouter.post('/event_log_board', async (req, res) => {
     }
     res.send(res_data)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
 /////////////////////////////// PROB BOARD ///////////////////////////////////////
 BoardRouter.get('/get_prob_cat', async (req, res) => {

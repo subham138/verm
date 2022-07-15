@@ -5,6 +5,7 @@ const { convert } = require('html-to-text');
 
 const LogsheetRouter = express.Router();
 
+/////////////////////////////// FETCH MANUAL LOG DATA ///////////////////////////////////////
 LogsheetRouter.get('/manuallog', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_activity',
@@ -14,6 +15,7 @@ LogsheetRouter.get('/manuallog', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// INSERT MANUAL LOG DATA ///////////////////////////////////////
 LogsheetRouter.post('/manuallog', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
@@ -28,6 +30,7 @@ LogsheetRouter.post('/manuallog', async (req, res) => {
     res.send(dt);
 })
 
+/////////////////////////////// DELETE MANUAL LOG ///////////////////////////////////////
 LogsheetRouter.get('/manuallog_del', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.query;
@@ -37,6 +40,7 @@ LogsheetRouter.get('/manuallog_del', async (req, res) => {
     res.send(dt)
 })
 
+/////////////////////////////// FETCH AUTO LOG DATA ///////////////////////////////////////
 LogsheetRouter.get('/get_autolog', async(req, res) => {
 	var inc_id = req.query.inc_id,
 		frm_dt = req.query.frm_dt,
@@ -61,6 +65,7 @@ LogsheetRouter.get('/get_autolog', async(req, res) => {
     res.send({ suc: 1, msg: body_text });
 })
 
+/////////////////////////////// MANUAL LOG REPORT DATA ///////////////////////////////////////
 LogsheetRouter.get('/get_manuallog', async(req, res) => {
 	var inc_id = req.query.inc_id,
 		frm_dt = req.query.frm_dt,

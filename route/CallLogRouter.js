@@ -4,6 +4,7 @@ const dateFormat = require('dateformat');
 
 const CallLogRouter = express.Router();
 
+/////////////////////////////// INCIDENT BOARD ///////////////////////////////////////
 CallLogRouter.get('/get_ref_no', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_call_log',
@@ -18,7 +19,10 @@ CallLogRouter.get('/get_ref_no', async (req, res) => {
 	}
     res.send(res_dt);
 })
+//////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////// LIVE LOG ///////////////////////////////////////
+// FETCH 
 CallLogRouter.get('/call_log', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_call_log',
@@ -89,5 +93,6 @@ CallLogRouter.post('/approve_call_log', async (req, res) => {
     var dt = await F_Insert(table_name, fields, values, whr, flag);
     res.send(dt)
 })
+//////////////////////////////////////////////////////////////////////////////////
 
 module.exports = {CallLogRouter}

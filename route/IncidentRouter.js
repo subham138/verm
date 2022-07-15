@@ -4,6 +4,7 @@ const dateFormat = require('dateformat');
 
 const IncidentRouter = express.Router();
 
+/////////////////////////////// FETCH INCIDENT DETAILS WITH INCIDENT NUMBER ///////////////////////////////////////
 IncidentRouter.get('/get_incident', async (req, res) => {
     var id = req.query.id,
         flag = req.query.flag,
@@ -18,6 +19,7 @@ IncidentRouter.get('/get_incident', async (req, res) => {
     res.send(res_dt);
 })
 
+/////////////////////////////// CREATE INCIDENT ///////////////////////////////////////
 IncidentRouter.post('/create_incident', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss"),
         inc_no = await GetIncNo();
@@ -41,6 +43,7 @@ IncidentRouter.post('/create_incident', async (req, res) => {
     res.send(res_dt)
 })
 
+/////////////////////////////// CLOSE INCIDENT ///////////////////////////////////////
 IncidentRouter.post('/close_incident', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
@@ -68,6 +71,7 @@ IncidentRouter.post('/close_incident', async (req, res) => {
     res.send(dt)
 })
 
+/////////////////////////////// APPROVE INCIDENT ///////////////////////////////////////
 IncidentRouter.post('/approve_incident', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
@@ -87,6 +91,7 @@ IncidentRouter.post('/approve_incident', async (req, res) => {
     res.send(dt)
 })
 
+/////////////////////////////// ACTIVE TEAM FOR THE OPEN INCIDENT ///////////////////////////////////////
 IncidentRouter.get('/get_active_team', async (req, res) => {
     var now_date = dateFormat(new Date(), "yyyy-mm-dd");
     table_name = 'td_team_log',
