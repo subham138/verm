@@ -28,7 +28,7 @@ TeamRouter.get('/assign_team_dash', async (req, res) => {
 TeamRouter.get('/assign_team', async (req, res) => {
     var id = req.query.id,
         table_name = 'td_team_members a, md_teams b, md_employee c',
-        select = `a.id, b.team_name, a.effective_date, a.emp_id, c.emp_name, a.emp_status, c.employee_id, IF(a.emp_status = 'O', 'Assigned', 'Not Assigned') as assign_status, c.user_type`,
+        select = `a.id, b.team_name, a.effective_date, a.emp_id, c.emp_name, a.emp_status, c.employee_id, IF(a.emp_status = 'O', 'Assigned', 'Not Assigned') as assign_status, c.user_type, c.id as emp_id, c.email, IF((SELECT COUNT(id) FROM td_activation d WHERE a.team_id=d.team_id AND a.emp_id=d.emp_id AND d.active_flag = 'Y') > 0, 'Y', 'N') active_flag`,
         whr = id > 0 ? `a.team_id=b.id AND a.emp_id=c.id AND team_id = ${id}` : `a.team_id=b.id AND a.emp_id=c.id`;
     var dt = await F_Select(select, table_name, whr, null);
     res.send(dt);
@@ -68,16 +68,16 @@ TeamRouter.post('/assign_team', async (req, res) => {
             whr = `team_id = "${data.team_id}" AND emp_id = "${dt.id}"`,
             flag = chk_dt.msg > 0 ? 1 : 0;
         // console.log({ flag })
-		
-		/////////////////// store record in td_activity //////////////////////////
-		var user_id = data.user,
-			act_type = flag > 0 ? 'M' : 'C',
-			activity = `${dt.emp_name} has been assigned to a Team, name as ${dt.team_name} by ${user_id} at ${datetime}`;
-		var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-		if(flag == 0){
-			var email = await AssignTeamMail(dt.emp_id, dt.team_name);
-		}
-		//////////////////////////////////////////////////////////////////////
+
+        /////////////////// store record in td_activity //////////////////////////
+        var user_id = data.user,
+            act_type = flag > 0 ? 'M' : 'C',
+            activity = `${dt.emp_name} has been assigned to a Team, name as ${dt.team_name} by ${user_id} at ${datetime}`;
+        var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+        if (flag == 0) {
+            var email = await AssignTeamMail(dt.emp_id, dt.team_name);
+        }
+        //////////////////////////////////////////////////////////////////////
         res_dt = await F_Insert(table_name, fields, values, whr, flag);
     })
     // var table_name = 'td_team_members',
@@ -125,27 +125,27 @@ TeamRouter.post('/team_status', async (req, res) => {
     if (chk_dt.msg.length > 0) {
         res_dt = { suc: 0, msg: 'Data Already Exist..' }
     } else {
-		var table_name = 'td_team_log',
-            fields = data.id > 0 ? `team_id = "${data.team_id}", from_date = "${data.from_date}", to_date = "${data.to_date}", modified_by = "${data.user}", modified_at = "${datetime}"` :`(team_id, from_date, to_date, created_by, created_at)`,
+        var table_name = 'td_team_log',
+            fields = data.id > 0 ? `team_id = "${data.team_id}", from_date = "${data.from_date}", to_date = "${data.to_date}", modified_by = "${data.user}", modified_at = "${datetime}"` : `(team_id, from_date, to_date, created_by, created_at)`,
             values = `("${data.team_id}", "${data.from_date}", "${data.to_date}", "${data.user}", "${datetime}")`,
             whr = `id = ${data.id}`,
             flag = data.id > 0 ? 1 : 0;
-		
-		/////////////////// store record in td_activity //////////////////////////
-		var user_id = data.user,
-			act_type = flag > 0 ? 'M' : 'C',
-			activity = `A Team named, ${data.team_name} has been assigned for the duety from ${data.from_date} to ${data.to_date} by ${user_id} at ${datetime}`;
-		var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-		//////////////////////////////////////////////////////////////////////
+
+        /////////////////// store record in td_activity //////////////////////////
+        var user_id = data.user,
+            act_type = flag > 0 ? 'M' : 'C',
+            activity = `A Team named, ${data.team_name} has been assigned for the duety from ${data.from_date} to ${data.to_date} by ${user_id} at ${datetime}`;
+        var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+        //////////////////////////////////////////////////////////////////////
         res_dt = await F_Insert(table_name, fields, values, whr, flag);
-        
+
     }
     res.send(res_dt);
 })
 
 /////////////////////////////// PREVIOUS TEAM ROSTER ///////////////////////////////////////
 TeamRouter.get('/pre_team_status', async (req, res) => {
-	var now = dateFormat(new Date(), "yyyy-mm-dd");
+    var now = dateFormat(new Date(), "yyyy-mm-dd");
     var id = req.query.id,
         table_name = 'td_team_log',
         select = `team_id, DATE_FORMAT(from_date, "%d/%m/%Y") from_date, DATE_FORMAT(to_date, "%d/%m/%Y") to_date, DATE_FORMAT(created_at, '%d/%m/%Y %h:%i:%s %p') created_at, created_by`,

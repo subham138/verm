@@ -1,6 +1,7 @@
 const express = require('express');
 const { F_Insert, F_Select, F_Check, F_Delete, CreateActivity } = require('../modules/MasterModule');
 const dateFormat = require('dateformat');
+const { ActiveTeamMail } = require('../modules/EmailModule');
 const ActivationRouter = express.Router();
 
 // Active and deactive team in roster
@@ -31,6 +32,8 @@ ActivationRouter.get('/get_active_emp_list', async (req, res) => {
 ActivationRouter.post('/activation', async (req, res) => {
 	var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
 	var data = req.body;
+	console.log(data);
+
 	// UPDATE ALL PREVIOUSLY ACTIVATED DATA //
 	var update_table = 'td_activation',
 		update_fields = `active_flag = "N", modified_by = "${data.user}", modified_at = "${datetime}"`,
@@ -40,25 +43,40 @@ ActivationRouter.post('/activation', async (req, res) => {
 		update_flag = 1;
 	var update_rs = await F_Insert(update_table, update_fields, null, update_whr, 1);
 	//////////////////////////////////////////////////////
-	// Insert team id against a incident
-	var table_name = 'td_activation',
-		//fields = data.id > 0 ? `inc_id = "${data.inc_id}", team_id = "${data.team_id}", active_flag = "${data.flag}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-		// '(inc_id, team_id, active_flag, created_by, created_at)',
-		fields = '(inc_id, team_id, active_flag, created_by, created_at)',
-		values = `("${data.inc_id}", "${data.team_id}", "${data.flag}", "${data.user}", "${datetime}")`,
-		whr = null,
-		flag = 0,
-		flag_type = flag > 0 ? 'Deactivated' : 'Assigned';
-	
-	// Store activity
-	var user_id = data.user,
-		act_type = flag > 0 ? 'M' : 'C',
-		activity = `A Team ${data.team_name} is ${flag_type} for the incident named ${data.inc_name} BY ${data.user} AT ${datetime}`;
-	var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
 
-	var dt = await F_Insert(table_name, fields, values, whr, flag),
-		res_dt = flag > 0 ? dt : { suc: dt.suc, msg: dt.msg };
-	res.send(res_dt)
+	var table_name, fields, values, whr, flag, flag_type, dt;
+	var user_id, act_type, activity, activity_res;
+
+	// Insert team id against a incident
+	for (let emp of data.emp_dt) {
+		table_name = 'td_activation'
+		fields = '(inc_id, team_id, emp_id, active_flag, created_by, created_at)'
+		values = `("${data.inc_id}", "${data.team_id}", "${emp.emp_id}", "${data.flag}", "${data.user}", "${datetime}")`
+		whr = null
+		flag = 0
+		flag_type = flag > 0 ? 'Deactivated' : 'Assigned'
+		dt = await F_Insert(table_name, fields, values, whr, flag)
+
+		// Store activity
+		user_id = data.user
+		act_type = flag > 0 ? 'M' : 'C'
+		activity = `A Team ${data.team_name} is ${flag_type} for the incident named ${data.inc_name} BY ${data.user} AT ${datetime}`;
+		activity_res = await CreateActivity(user_id, datetime, act_type, activity);
+
+		if (dt.suc == 0) break;
+	}
+
+	// EMAIL NOTIFICATION
+	var email_to_emp = await ActiveTeamMail(data.emp_dt, data.inc_name, data.inc_id, data.team_name)
+
+	res.send(dt)
+
+
+
+	// var dt = await F_Insert(table_name, fields, values, whr, flag),
+	// 	res_dt = flag > 0 ? dt : { suc: dt.suc, msg: dt.msg };
+
+	// res.send(res_dt)
 })
 
 // Return active flag for a specific team

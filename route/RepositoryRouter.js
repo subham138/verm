@@ -21,22 +21,27 @@ RepoRouter.get('/repository_category', async (req, res) => {
 RepoRouter.post('/repository_category', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
     var data = req.body;
+    var dt = await CreateRepositoryCategory(data, datetime)
+    res.send(dt)
+})
+
+// SEPARATE THE FUNCTION TO CALL THIS FUNCTION IN CREATE INCIDENT MODULE
+const CreateRepositoryCategory = async (data, datetime) => {
     var table_name = 'md_repository_category',
         fields = '(catg_name, delete_flag, created_by, created_at)',
         values = `("${data.catg_name}", "N", "${data.user}", "${datetime}")`,
         whr = null,
         flag = 0,
-		flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
-	
-	// store record in td_activity
-	var user_id = data.user,
+        flag_type = flag > 0 ? 'UPDATED' : 'INSERTED';
+
+    // store record in td_activity
+    var user_id = data.user,
         act_type = flag > 0 ? 'M' : 'C',
         activity = `A Repository Category Named, ${data.catg_name} IS ${flag_type}`;
     var activity_res = await CreateActivity(user_id, datetime, act_type, activity);
-	
+
     var dt = await F_Insert(table_name, fields, values, whr, flag);
-    res.send(dt)
-})
+}
 
 RepoRouter.get('/repository_category_del', async (req, res) => {
     var datetime = dateFormat(new Date(), "yyyy-mm-dd HH:MM:ss");
@@ -111,4 +116,4 @@ RepoRouter.get('/repository_del', async (req, res) => {
 })
 ///////////////////////////////////////////////////
 
-module.exports = { RepoRouter };
+module.exports = { RepoRouter, CreateRepositoryCategory };
