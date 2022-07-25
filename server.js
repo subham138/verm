@@ -114,6 +114,30 @@ app.get('/test2', async (req, res) => {
 	res.send(dt)
 })
 
+app.get('/test3', async (req, res) => {
+	var s1_id = req.query.s1_id
+	var s2_id = req.query.s2_id
+	var s3_id = req.query.s3_id
+
+	var data1 = { user: 'Tanmoy Mondal', room: 1, emp_code: '32' }
+	var data2 = { user: 'Subham Samanta', room: 1, emp_code: '132' }
+	var data3 = { user: 'Siman Mitra', room: 1, emp_code: '134' }
+	var arr = [];
+	arr[s1_id] = data1
+	arr[s2_id] = data2
+	arr[s3_id] = data3
+	// console.log('before', arr);
+	// var dt = [{ user: 'Tanmoy Mondal', room: 1, emp_code: '32' }, { user: 'Subham Samanta', room: 1, emp_code: '132' }, { user: 'Siman Mitra', room: 1, emp_code: '134' }];
+	// var i = dt.findIndex(d => d.emp_code == '32')
+	// console.log('before', dt);
+	// dt.splice(dt.findIndex(d => d.emp_code == '32'), 1)
+
+	// arr.splice(arr.findIndex(dt => dt['h1SFaxZs36OjHdPxAAAC']), 1)
+	// console.log('after', arr);
+	// console.log(i);
+
+})
+
 const GetRes = (frm, to, inc_id) => {
 	let sql = `SELECT a.prob_cat_id, b.name as prob_cat, SUM(a.value) AS value FROM td_prob_board a, md_prob_category b WHERE a.prob_cat_id=b.id AND a.time >= '${frm}' AND a.time <= '${to}' AND a.inc_id = "${inc_id}" GROUP BY b.id ORDER BY b.id`;
 	return new Promise((resolve, reject) => {
@@ -134,6 +158,7 @@ const io = socketIO(server, {
 	}
 })
 
+var user_data = []
 // Handle connection
 io.on('connection', async function (socket) {
 	console.log(`Connected succesfully to the socket ... ${socket.id}`);
@@ -154,6 +179,9 @@ io.on('connection', async function (socket) {
 
 	socket.on('join', (data) => {
 		console.log(`${data.user} join the room ${data.room}`);
+		data['s_id'] = socket.id
+		user_data.push(data)
+		console.log(data, socket.id, user_data);
 		socket.broadcast.emit('newUserJoined', { user: data.user, msg: 'has joined' });
 	})
 
@@ -195,6 +223,7 @@ io.on('connection', async function (socket) {
 
 	socket.on('disconnect', () => {
 		console.log('a user disconnected!');
+		console.log('disconnect', socket.id);
 		// var sql = `UPDATE md_employee SET user_status = 'O' WHERE employee_id = ${user[socket.id]}`;
 		// db.query(sql, (err) => {
 		//     if(err) console.log(err);

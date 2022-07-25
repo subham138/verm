@@ -18,7 +18,7 @@ BoardRouter.get('/get_active_inc', async (req, res) => {
 BoardRouter.get('/inc_board', async (req, res) => {
     var inc_id = req.query.inc_id,
         table_name = 'td_inc_board',
-        select = 'id, inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, summary, status, DATE_FORMAT(created_at, "%h:%i:%s %p") AS time',
+        select = 'id, inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, DATE_FORMAT(created_at, "%h:%i:%s %p") AS time',
         whr = `inc_id = "${inc_id}"`,
         order = `ORDER BY id DESC`;
     var dt = await F_Select(select, table_name, whr, order);
@@ -35,11 +35,11 @@ BoardRouter.post('/inc_board', async (req, res) => {
             var table_name = 'td_inc_board',
                 fields = dt.id > 0 ? `inc_id = "${data.inc_id}", date = "${date}", installation = "${data.installation}", 
                 coordinates = "${data.coordinates}", visibility = "${dt.visibility}", wind_speed = "${dt.wind_speed}", 
-                wind_direc = "${dt.wind_direc}", sea_state = "${dt.sea_state}", temp = "${dt.temp}", summary = "${data.summary}",
+                wind_direc = "${dt.wind_direc}", sea_state = "${dt.sea_state}", temp = "${dt.temp}", temp_unit = "${dt.temp_unit}", summary = "${data.summary}",
                 status = "${data.status}", modified_by = "${data.user}", modified_at = "${datetime}"` :
-                    '(inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, summary, status, created_by, created_at)',
+                    '(inc_id, date, installation, coordinates, visibility, wind_speed, wind_direc, sea_state, temp, temp_unit, summary, status, created_by, created_at)',
                 values = `("${data.inc_id}", "${date}", "${data.installation}", "${data.coordinates}", "${dt.visibility}", 
-                "${dt.wind_speed}", "${dt.wind_direc}", "${dt.sea_state}", "${dt.temp}", "${data.summary}", "${data.status}", "${data.user}", "${datetime}")`,
+                "${dt.wind_speed}", "${dt.wind_direc}", "${dt.sea_state}", "${dt.temp}", "${dt.temp_unit}", "${data.summary}", "${data.status}", "${data.user}", "${datetime}")`,
                 whr = `id = ${dt.id}`,
                 flag = dt.id > 0 ? 1 : 0,
                 flag_type = flag > 0 ? 'UPDATED' : 'CREATED';
